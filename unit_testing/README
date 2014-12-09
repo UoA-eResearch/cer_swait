@@ -1,0 +1,14 @@
+Unit Testing Doc
+----------------
+Files:	
+	- swait_unittests0.py
+	- hello.sl
+	- arrayjob.sl
+
+Info
+---------
+swait_unittests0.py needs to be run on the cluster using the test jobs 'hello.sl' and 'arrayjob.sl'. It runs either 'sbatch hello.sl' or 'sbatch arrajob.sl' for a given test case and waits for that particular job to complete.
+
+
+
+

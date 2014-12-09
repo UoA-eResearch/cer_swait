@@ -8,24 +8,6 @@ import argparse
 import subprocess
 import time
 
-'''
-Notes:
-        Quick Usage Notes:
-        1. Waiting for a single Job ID to complete.
-                swait.py -j [jobid]
-        2. Waiting for list of Job ID's (separated by whitespace) to complete.
-                swait.py -j [jobid1] [jobid2] [jobid3] [jobidn]
-        3. waiting for Job ID's in range (separated by whitespace) to complete.
-                swait.py -j [jobid_start] [jobid_end]
-        4. Waiting for a specific users jobs to complete.
-                swait.py -u [userid]
-        5. Waiting for specific job name to complete.
-                swait.py -n [jobname]
-
-Swait return codes:
-        -1 = Polling error.
-         0 = Successfull job completion.    
-'''
 
 def poll_terminal(dictionary):           
 
@@ -163,12 +145,13 @@ if __name__ == "__main__":
         global_variables['whoami'] = os.popen("whoami").read()
         global_variables['whoami'] = global_variables['whoami'].strip('\n')
 
-        parser = argparse.ArgumentParser(argument_default=global_variables['whoami'],description='Waits for specified job(s) to finish and returns true on completion.')
+        parser = argparse.ArgumentParser(argument_default=global_variables['whoami'],description='Waits for specified job(s) to finish and returns true on completion. (note: if a particular job did not exist on the cluster to begin with, swait will return true).')
         group = parser.add_mutually_exclusive_group()
         
-        group.add_argument('--job','-j',help='Wait until a specific job ID completes.',nargs='*',default=None)
+        group.add_argument('--job','-j',help='Wait until a specific job ID completes. Either a single id or a list of ids separated by a whitespace.',nargs='*',default=None)
+        group.add_argument('--jobrange','-jr',help='Wait for a range of job IDs to complete. (Enter the startID and endID separated by a white space).',nargs=2,default=None)
         group.add_argument('--user','-u',help='Wait until all jobs for a specific user completes.',nargs=1,default=None)
-        group.add_argument('--name','-n',help='Wait until specified job name completes.',nargs=1,default=None)
+        group.add_argument('--name','-n',help='Wait until specified job name completes. (note: this only works for the current logged in users\' jobs).',nargs=1,default=None)
 
         parser.add_argument('--pollfreq','-pf',help='Set polling frequency.',nargs=1,default=5)
         parser.add_argument('--debug','-dbg',help='Turn on debug messages. (Enter 1 for true or 0 for false)',nargs=1, type=bool,default=False)
@@ -180,16 +163,23 @@ if __name__ == "__main__":
                         # for when a single job ID given
                         global_variables['job_id'] = args.job[0]
                         if global_variables['debug_mode']:  print '[DBG] the job id that was given was: ', args.job[0],'\n'
-                if len(args.job) == 2:
-                        # for when a range of job ID's given
-                        global_variables['job_id_range_start'] = args.job[0]
-                        global_variables['job_id_range_end'] = args.job[1]
-                        if global_variables['debug_mode']:  print '[DBG] the job id range given was: ', args.job[0],' and ', args.job[1], '\n'
+                        
                 if len(args.job) > 2:
+                        # for when a list of job ID's given
                         for x in args.job:
                                 global_variables['job_id_list'].append(x)
                                 if global_variables['debug_mode']:  print '[DBG] the job id list contains: ', x , '\n'
+        if args.jobrange:
+                # for when a range of job ID's given
+                if ('_' in args.jobrange[0]) or ('_' in args.jobrange[1]):
+                        if global_variables['debug_mode']: print '[DBG] invalid input: range id\'s cannot contain underscores.\n'
+
+                        sys.exit(1)
                         
+                global_variables['job_id_range_start'] = args.jobrange[0]
+                global_variables['job_id_range_end'] = args.jobrange[1]
+                if global_variables['debug_mode']:  print '[DBG] the job id range given was: ', args.jobrange[0],' and ', args.jobrange[1], '\n'
+
         if args.user:
                 global_variables['user_id'] = args.user[0]
                 if global_variables['debug_mode']:  print '[DBG] the user that was given was: ', args.user[0],'\n'
