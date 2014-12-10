@@ -1,13 +1,21 @@
 # file: swait.py
-# info: handles all parsing, blocking and polling events for swait.
-# usage:        
+# description: waits for a specified job on the cluster to complete and returns 0 on completion.
+# usage:
+#       1. Waiting for a single Job ID to complete. `swait.py -j [JOBID]`
+#       2. Waiting for list of Job ID's (separated by whitespace) to complete. `swait.py -j [JOBID1] [JOBID2] [JOBID3] [JOBIDn]`
+#       3. Waiting for a range of Job ID's to complete. `swait.py -jr [JOBID_START] [JOBID_END]`
+#       4. Waiting for a specific users' jobs to complete. `swait.py -u [USERID]`
+#       5. Waiting for specific job name to complete. (note: this only works for the current logged in user) `swait.py -n [JOBNAME]`
+# Swait return codes:
+#       0 = Successfull job completion.
+#       1 = Polling error.
+#       2 = Invalid input.
 
 import os
 import sys
 import argparse
 import subprocess
 import time
-
 
 def poll_terminal(dictionary):           
 
@@ -17,7 +25,7 @@ def poll_terminal(dictionary):
                 else:
                         p = subprocess.Popen('squeue', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         except:
-                sys.exit(-1)
+                sys.exit(1)
                         
 
         for line in p.stdout.readlines():               
@@ -174,7 +182,7 @@ if __name__ == "__main__":
                 if ('_' in args.jobrange[0]) or ('_' in args.jobrange[1]):
                         if global_variables['debug_mode']: print '[DBG] invalid input: range id\'s cannot contain underscores.\n'
 
-                        sys.exit(1)
+                        sys.exit(2)
                         
                 global_variables['job_id_range_start'] = args.jobrange[0]
                 global_variables['job_id_range_end'] = args.jobrange[1]

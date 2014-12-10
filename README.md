@@ -14,6 +14,6 @@ Quick Usage Notes:
 5. Waiting for specific job name to complete. (note: this only works for the current logged in user) `swait.py -n [JOBNAME]`
 
 Swait return codes:
-* -1 = Polling error.
 * 0 = Successfull job completion.
-* 1 = Invalid input.
+* 1 = Polling error.
+* 2 = Invalid input.
