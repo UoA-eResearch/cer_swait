@@ -7,9 +7,9 @@
 #       4. Waiting for a specific users' jobs to complete. `swait.py -u [USERID]`
 #       5. Waiting for specific job name to complete. (note: this only works for the current logged in user) `swait.py -n [JOBNAME]`
 # Swait return codes:
-#       0 = Successfull job completion.
-#       1 = Polling error.
-#       2 = Invalid input.
+#       0 = SUCCESSFUL_JOB_COMPLETION   
+#       1 = POLLING_ERROR               
+#       2 = INVALID_INPUT         
 
 import os
 import sys
@@ -18,7 +18,9 @@ import subprocess
 import time
 
 class Swait:
-    
+
+    SUCCESSFUL_JOB_COMPLETION, POLLING_ERROR, INVALID_INPUT = range(3)
+   
     polling_freq = 5
     debug_mode = False
     job_id = None
@@ -46,68 +48,72 @@ class Swait:
         group.add_argument('--user','-u',help='Wait until all jobs for a specific user completes.',nargs=1,default=None)
         group.add_argument('--name','-n',help='Wait until specified job name completes. (note: this only works for the current logged in users\' jobs).',nargs=1,default=None)
 
-        parser.add_argument('--pollfreq','-pf',help='Set polling frequency.',nargs=1,default=5)
+        parser.add_argument('--pollfreq','-pf',help='Set polling frequency.',nargs=1,type=int,default=5)
         parser.add_argument('--debug','-dbg',help='Turn on debug messages. (Enter 1 for true or 0 for false)',nargs=1, type=bool,default=False)
 
         args = parser.parse_args()
+
+        if args.debug:
+                self.debug_mode = bool(args.debug)
+                if self.debug_mode:  print '[DBG] Debug mode turned ON: ', args.debug[0]
 
         if args.job:
                 if len(args.job) == 1:
                         # for when a single job ID given
                         self.job_id = args.job[0]
-                        if self.debug_mode:  print '[DBG] the job id that was given was: ', args.job[0],'\n'
+                        if self.debug_mode:  print '[DBG] Searching for JOBID: ', args.job[0]
                         
                 if len(args.job) > 2:
                         # for when a list of job ID's given
                         for x in args.job:
                                 self.job_id_list.append(x)
-                                if self.debug_mode:  print '[DBG] the job id list contains: ', x , '\n'
+                                if self.debug_mode:  print '[DBG] Searching for JOBID\'s: ', x
        
         if args.jobrange:
                 # for when a range of job ID's given
                 if ('_' in args.jobrange[0]) or ('_' in args.jobrange[1]):
-                        if self.debug_mode: print '[DBG] invalid input: range id\'s cannot contain underscores.\n'
+                        if self.debug_mode: print '[DBG] invalid input: range id\'s cannot contain underscores.'
 
-                        sys.exit(2)
+                        sys.exit(self.INVALID_INPUT)
                         
                 self.job_id_range_start = args.jobrange[0]
                 self.job_id_range_end = args.jobrange[1]
-                if self.debug_mode:  print '[DBG] the job id range given was: ', args.jobrange[0],' and ', args.jobrange[1], '\n'
+                if self.debug_mode:  print '[DBG] Searching for JOBID\'s in range: ', args.jobrange[0],' and ', args.jobrange[1]
 
         if args.user:
                 self.user_id = args.user[0]
-                if self.debug_mode:  print '[DBG] the user that was given was: ', args.user[0],'\n'
+                if self.debug_mode:  print '[DBG] Searching for USERID: ', args.user[0]
 
         if args.name:
                 self.job_name = args.name[0]
-                if self.debug_mode:  print '[DBG] the job name that was given was: ', args.name[0],'\n'
+                if self.debug_mode:  print '[DBG] Searching for JOBNAME: ', args.name[0]
 
         if args.pollfreq:
                 self.polling_freq = args.pollfreq
-                if self.debug_mode:  print '[DBG] polling frequency set at: ', args.pollfreq[0],'\n'
-
-        if args.debug:
-                self.debug_mode = bool(args.debug)
-                if self.debug_mode:  print '[DBG] Debug mode turned ON: ', args.debug[0],'\n'
+                if self.debug_mode:  print '[DBG] Polling frequency set at: ', args.pollfreq,' seconds.'
 
         if (args.job == None) and (args.jobrange == None) and (args.user == None) and (args.name == None):
                 self.default_on = True
-                if self.debug_mode:  print '[DBG] no arugments given, running as default user: ',self.whoami,'\n',
+                if self.debug_mode:  print '[DBG] No arugments given, searching for default user: ', self.whoami
 
 
-    def poll_terminal(self,arg = None):
-        try:
-            if arg != None:
-                p = subprocess.Popen(arg, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            elif self.default_on == True:
-                p = subprocess.Popen('squeue -u '+self.whoami, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            else:
-                p = subprocess.Popen('squeue', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    def poll_terminal(self, arg = None):
+        retries = 0
+        while retries <=3:
+            try:
+                if arg != None:
+                    p = subprocess.Popen(arg, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                elif self.default_on == True:
+                    p = subprocess.Popen('squeue -u '+self.whoami, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                else:
+                    p = subprocess.Popen('squeue', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
-        except:
-                if self.debug_mode:  print '[DBG] polling error.'
-                sys.exit(1)
-        return p
+            except:
+                    retries = retries + 1
+                    if retries == 3:                    
+                        if self.debug_mode:  print '[DBG] polling error.'
+                        sys.exit(self.POLLING_ERROR)
+            return p
     
 
     def block_until_not_found(self):
@@ -115,7 +121,7 @@ class Swait:
             time.sleep(float(self.polling_freq))
 
         if self.debug_mode:  print '[DBG] Job finished (or it was never there to begin with)'
-        return 0
+        return self.SUCCESSFUL_JOB_COMPLETION
 
       
     def search_cluster_for_jobs(self):
@@ -125,7 +131,7 @@ class Swait:
 
         # Search for JOB ID's in range
         if self.job_id_range_start != None:
-            return( self.search_for_jobids_inrange(self.job_id_range_start,self.job_id_range_end) )
+            return( self.search_for_jobids_inrange(self.job_id_range_start, self.job_id_range_end) )
 
         # Search for JOB ID's in list
         if len(self.job_id_list) != 0:
@@ -140,11 +146,11 @@ class Swait:
             return( self.search_for_jobname(self.job_name) )
 
         # Search for when Default is on: Wait until all job(s) of the current logged in user is complete..
-        if self.default_on == True: # or just if () instead of being so explicit?
+        if self.default_on == True:
             return( self.search_for_default_usersjobs(self.whoami) )
 
 
-    def search_for_jobid(self,job_id):
+    def search_for_jobid(self, job_id):
         p = self.poll_terminal()
 
         for line in p.stdout.readlines():               
@@ -164,7 +170,7 @@ class Swait:
         return False
 
 
-    def search_for_jobids_inrange(self,job_id_range_start,job_id_range_end):
+    def search_for_jobids_inrange(self, job_id_range_start, job_id_range_end):
         p = self.poll_terminal()
 
         for line in p.stdout.readlines():               
@@ -174,7 +180,7 @@ class Swait:
 
                 match_job_id = tmp[0]
 
-                for x in xrange(int(self.job_id_range_start),int(self.job_id_range_end)+1):
+                for x in xrange(int(self.job_id_range_start), int(self.job_id_range_end)+1):
                     # if there is atleast one match, return as success.
                     if match_job_id == str(x):
                         if self.debug_mode:  print '[DBG] Job still active..'
@@ -182,7 +188,7 @@ class Swait:
         return False
 
 
-    def search_for_jobids_inlist(self,job_id_list):
+    def search_for_jobids_inlist(self, job_id_list):
         p = self.poll_terminal()
 
         for line in p.stdout.readlines():               
@@ -199,7 +205,7 @@ class Swait:
         return False
 
 
-    def search_for_userid(self,user_id):
+    def search_for_userid(self, user_id):
         p = self.poll_terminal()
 
         for line in p.stdout.readlines():               
@@ -215,7 +221,7 @@ class Swait:
         return False
 
 
-    def search_for_jobname(self,job_name):
+    def search_for_jobname(self, job_name):
         # Resetting Lists
         self.jobname_list = []
         self.jobid_list_for_searching_jobnames = []
@@ -261,7 +267,7 @@ class Swait:
         return False
 
 
-    def search_for_default_usersjobs(self,whoami):
+    def search_for_default_usersjobs(self, whoami):
         p = self.poll_terminal()
 
         for line in p.stdout.readlines():               
@@ -276,8 +282,6 @@ class Swait:
                     if (match_job_id != "JOBID"):
                         if self.debug_mode:  print '[DBG] Job still active..'
                         return True
-
-        print 'returning false'
         return False
 
 
@@ -286,12 +290,4 @@ if __name__ == "__main__":
 
     swait = Swait()
     sys.exit(swait.block_until_not_found())
-
-
-
-
-
-
-
-
-            
+         
