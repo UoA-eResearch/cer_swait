@@ -1,15 +1,11 @@
-# file: swait.py
-# description: waits for a specified job on the cluster to complete and returns 0 on completion.
-# usage:
-#       1. Waiting for a single Job ID to complete. `swait.py -j [JOBID]`
-#       2. Waiting for list of Job ID's (separated by whitespace) to complete. `swait.py -j [JOBID1] [JOBID2] [JOBID3] [JOBIDn]`
-#       3. Waiting for a range of Job ID's to complete. `swait.py -jr [JOBID_START] [JOBID_END]`
-#       4. Waiting for a specific users' jobs to complete. `swait.py -u [USERID]`
-#       5. Waiting for specific job name to complete. (note: this only works for the current logged in user) `swait.py -n [JOBNAME]`
-# Swait return codes:
-#       0 = SUCCESSFUL_JOB_COMPLETION   
-#       1 = POLLING_ERROR               
-#       2 = INVALID_INPUT         
+# file: swait2.py
+# description: Used for unit testing
+#
+# Notes:
+#   - this script runs `dummypoll.py` inside poll_terminal() instead of `squeue`.
+#   - dummypoll.py takes in an 'elapsed time' value in seconds which it uses to determine
+#     whether or not enough time has passed in order to omit certain job listings.
+#     I.e to fake that certain jobs had "completed" by omitting them from its output.
 
 import os
 import sys
@@ -31,7 +27,12 @@ class Swait:
     job_id_list = []
     whoami = None
     default_on = False
-
+    
+    # -- Unit testing stuff..
+    start_time = None               
+    end_time = None
+    unittests_on = None
+    elapsed_time = None
 
     def __init__(self):
         self.whoami = os.popen("whoami").read()
@@ -47,12 +48,23 @@ class Swait:
 
         parser.add_argument('--pollfreq','-pf',help='Set polling frequency.',nargs=1,type=int,default=5)
         parser.add_argument('--debug','-dbg',help='Turn on debug messages. (Enter 1 for true or 0 for false)',nargs=1, type=bool,default=False)
+        
+        parser.add_argument('--unittests','-ut',help='Unit testing swait..',nargs=1, type=bool,default=False)
+        
 
         args = parser.parse_args()
+
 
         if args.debug:
                 self.debug_mode = bool(args.debug)
                 if self.debug_mode:  print '[DBG] Debug mode turned ON: ', args.debug[0]
+
+        if args.unittests:
+                self.unittests_on = bool(args.unittests)
+
+                self.start_time = time.time()            
+
+                if self.debug_mode:  print '[DBG] Unittests turned ON: '
 
         if args.job:
                 if len(args.job) == 1:
@@ -95,23 +107,12 @@ class Swait:
 
 
     def poll_terminal(self, arg = None):
-        retries = 0
-        while retries <=3:
-            try:
-                if arg != None:
-                    p = subprocess.Popen(arg, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-                elif self.default_on == True:
-                    p = subprocess.Popen('squeue -u '+self.whoami, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-                else:
-                    p = subprocess.Popen('squeue', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-
-            except:
-                    retries = retries + 1
-                    if retries == 3:                    
-                        if self.debug_mode:  print '[DBG] polling error.'
-                        sys.exit(self.POLLING_ERROR)
-            return p
-    
+        self.end_time = time.time()
+        self.elapsed_time = self.end_time - self.start_time  
+        
+        p = subprocess.Popen('python dummypoll.py '+str(int(self.elapsed_time)), shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        
+        return p
 
     def block_until_not_found(self):
         while (self.search_cluster_for_jobs() != False): 

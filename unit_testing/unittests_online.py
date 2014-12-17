@@ -38,8 +38,7 @@ class SwaitUnitTests(unittest.TestCase):
 
     def tearDown(self):
         self.jobid = None
-        self.terminal_command = None
-        p = None
+        self.p = None
         
     # -- Test functions --------------
 
@@ -126,10 +125,3 @@ class SwaitUnitTests(unittest.TestCase):
 if __name__ == '__main__':
     unittest.main()
 
-
-    
-
-
-
-
-    
