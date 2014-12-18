@@ -12,8 +12,13 @@ Search parameters are set by specifying the `-j` `-jr` `-u` and `-n` flags.
 
 Where,
 * `-j` is for specifying a single JOBID or list of JOBIDs 
-* `-u` for specifying a particular user that has active jobs on the cluster. 
-* `-dbg` turn on debug mode (OFF by default)
+* `-jr` for specifying a range of JOBIDs
+* `-u` for specifying a particular user that has active jobs on the cluster.
+* `-n` for specifying a jobname
+
+Optional parameters,
+* `-dbg` turns on debug mode (OFF by default)
+* `-pf` sets the polling frequency (I.e how often swait checks the cluster for changes. Set at 5 seconds by default)
 
 ###2. Quick Usage Notes 
 
