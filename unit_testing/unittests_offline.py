@@ -5,6 +5,7 @@ import unittest
 import swait
 import subprocess
 import time
+import os
 
 debugOn = False
 
@@ -23,11 +24,12 @@ class SwaitUnitTests(unittest.TestCase):
         
         START_TIME = float(time.time())
         fo = open('timer.txt','wb+')
-        fo.write('[START_TIME='+str(START_TIME)+']')
+        fo.write('START_TIME='+str(START_TIME))
         fo.close()
 
     def tearDown(self):
         self.p = None
+        os.remove('timer.txt')
 
 
     # -- Test Functions

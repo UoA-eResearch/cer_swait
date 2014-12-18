@@ -34,16 +34,15 @@ squeue_dummy_output = [ 'JOBID PARTITION     NAME     USER ST       TIME  NODES 
 # -- Reading file to get the start time that unittests_offline.py had set..
 
 try:
-    with open('timer.txt','rb') as FI:
-        START_TIME = FI.read()
+    with open('timer.txt','rb') as fi:
+        START_TIME = fi.read()
 except:
     print 'error: \'timer.txt\' has not been set. '
     sys.exit(1)
+fi.close()
 
 # -- Grabbing the start time from text file.
 
-START_TIME = START_TIME.strip("[")
-START_TIME = START_TIME.strip("]")
 START_TIME = START_TIME.strip("START_TIME=")
 START_TIME = float(START_TIME)
 
@@ -54,7 +53,6 @@ END_TIME = time.time()
 # -- Calculating the elapsed time..
 
 ELAPSED_TIME = END_TIME - START_TIME
-
 
 # if elapsed is greater than our predetermined timeout value, then omit fields.
 if ELAPSED_TIME > TIMEOUT:
