@@ -12,7 +12,7 @@ Search parameters are set by specifying `-j` `-jr` `-u` and `-n` flags.
 
 Where,
  * `-j` is for specifying a single JOBID or list of JOBIDs 
-* `-u` for specifying a particular user that has active jobs on the cluster. 
+ * `-u` for specifying a particular user that has active jobs on the cluster. 
  * `-dbg` turn on debug mode (OFF by default)
 
 ###2. Quick Usage Notes 
@@ -24,8 +24,10 @@ Where,
 5. Waiting for specific job name to complete. (note: this only works for the current logged in user) `swait.py -n [JOBNAME]` 
 
 ####Swait return codes: 
-`0 = Successfull job completion.` 
+`0 = Successfull job completion.`
+
 ` 1 = Polling error.` 
+
 `2 = Invalid input.` 
 
 ###3. Usage examples
