@@ -1,17 +1,44 @@
 Unit Testing Doc
 ================
-Files
------	
-	* `unittests_offline.py`    -runs unit tests offline using dummy input.
-    * `unittests_online.py`     -runs unit tests on the cluster using hello.sl and arrayjob.sl as inputs
-    * `dummypoll.py`            -generates a dummy `squeue` output
-    * `swait.py`                -cmd is set to `python dummypoll.py` to poll `dummypoll.py` instead of `squeue`
-	* `hello.sl`
-	* `arrayjob.sl`
+#### Files involved in testing
+* `unittests_offline.py`: Runs the unit tests offline using dummy input.
+* `unittests_online.py`: Runs the unit tests on the cluster using the files `hello.sl` and `arrayjob.sl` as inputs
+* `dummypoll.py`: Generates a dummy `squeue` output
+* `swait.py` : A slightly different version of swait, modified to call `dummypoll.py`
+* `hello.sl`: A test input file
+* `arrayjob.sl` A test input file
 
-Info
-----
-`unittests_online.py` needs to be run on the cluster using the test jobs `hello.sl` and `arrayjob.sl`. 
+####1.  Running unit tests offline
 
-`unittests_offline.py` runs `swait.py` which in turns calls `dummypoll.py` to generate dummy input
+Execute `unittests_offline.py` with `swait.py` and `dummypoll.py` in the same directory.
+
+Note: The copy of `swait.py` in this directory is slightly different and is set to poll `dummypoll.py` instead of `squeue`. 
+
+See line no. 296 in `swait.py`, it calls
+```python
+swait = Swait('python dummypoll.py')
+```
+
+
+#####Example test session
+```bash
+$ python unittests_offline.py
+.....
+----------------------------------------------------------------------
+Ran 5 tests in 20.328s
+
+OK
+```
+
+####2. Running unit tests on the cluster
+#####Example test session (Note: the relevant files are stored and run on the cluster)
+
+```bash
+$ python unittests_online.py
+.....
+----------------------------------------------------------------------
+Ran 5 tests in 263.461s
+
+OK
+```
 

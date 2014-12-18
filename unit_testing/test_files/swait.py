@@ -291,7 +291,8 @@ class Swait():
 
 
 if __name__ == "__main__":
-    # `python dummypoll.py` in order to run unit tests..
-    swait = Swait('python dummypoll.py')
+    
+    #swait = Swait()    # default.    
+    swait = Swait('python dummypoll.py')    # for running unit tests..
     sys.exit(swait.block_until_not_found())
          

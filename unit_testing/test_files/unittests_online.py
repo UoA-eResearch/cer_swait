@@ -72,17 +72,6 @@ class SwaitUnitTests(unittest.TestCase):
 
         self.assertEqual(retval,0)
 
-    def test_searchfor_single_jobid_in_jobarrary(self):
-        self.run_terminal_cmnd('sbatch arrayjob.sl')
-        self.get_jobid_from_sbatchtxt()
-
-        self.run_terminal_cmnd('python swait.py -j '+self.jobid)
-
-        data = self.p.communicate()[0]
-        retval = self.p.returncode
-
-        self.assertEqual(retval,0)
-
     def test_searchfor_range_of_jobids(self):
         #step1: run hello.sl,get the jobid and set the variable jobid1 
         self.run_terminal_cmnd('sbatch hello.sl')
