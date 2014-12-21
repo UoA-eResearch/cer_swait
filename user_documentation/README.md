@@ -58,9 +58,9 @@ The output of the last command looks as follows
 [DBG] Debug mode turned ON: True 
 [DBG] Searching for JOBID: 12050191 
 [DBG] Polling frequency set at: 5 seconds. 
-[DBG] Job still active.. [DBG] Job still active..
-[DBG] Job still active.. [DBG] Job still active.. 
-[DBG] Job still active.. [DBG] Job still active.. 
+[DBG] Job still active..
+[DBG] Job still active.. 
+[DBG] Job still active..
 [DBG] Job finished (or it was never there to begin with) 
 ```
 swait will then return control to the terminal prompt and return `0` indicating a successful job completion. 

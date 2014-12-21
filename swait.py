@@ -1,3 +1,4 @@
+#!/bin/python
 # file: swait.py
 # description: waits for a specified job on the cluster to complete and returns 0 on completion.
 # usage:
@@ -121,7 +122,7 @@ class Swait():
                 sys.exit(self.POLLING_ERROR)
     
 
-    def block_until_not_found(self):
+    def block_until_not_found(self):       
         while (self.search_cluster_for_jobs() != False): 
             time.sleep(float(self.polling_freq))
 
@@ -164,12 +165,12 @@ class Swait():
             if (len(tmp) >= 3):
                 match_job_id = tmp[0]
                 
-                if match_job_id == job_id:
+                if str(match_job_id) == str(job_id):
                     if self.debug_mode:  print '[DBG] Job still active..'
                     return True
 
-                if "_" in match_job_id:
-                    if job_id in match_job_id:
+                if "_" in str(match_job_id):
+                    if str(job_id) in str(match_job_id):
                         if debug_mode:  print '[DBG] Job still active..'
                         return True
         return False
@@ -187,7 +188,7 @@ class Swait():
 
                 for x in xrange(int(job_id_range_start), int(job_id_range_end)+1):
                     # if there is atleast one match, return as success.
-                    if match_job_id == str(x):
+                    if str(match_job_id) == str(x):
                         if self.debug_mode:  print '[DBG] Job still active..'
                         return True
         return False
@@ -204,7 +205,7 @@ class Swait():
                 match_job_id = tmp[0]
 
                 for x in job_id_list:
-                    if match_job_id == x:
+                    if str(match_job_id) == str(x):
                         if self.debug_mode:  print '[DBG] Job still active..'
                         return True
         return False
@@ -220,7 +221,7 @@ class Swait():
                 
                 match_user_id = tmp[3]
 
-                if match_user_id == user_id:
+                if str(match_user_id) == str(user_id):
                     if self.debug_mode:  print '[DBG] Job still active..'
                     return True
         return False
@@ -231,7 +232,7 @@ class Swait():
         jobid_list_for_searching_jobnames = []
 
         #Step 1. Create list of job id's
-        # Note: Only searches for current logged in user. Otherwise,
+        # Note: Only searches for the current logged in user. Otherwise,
         # it would search the entire cluster for jobs and cause a large delay.
 
         w = self.poll_terminal('squeue -u '+self.whoami)
@@ -259,12 +260,12 @@ class Swait():
                     if "JobId" in tmp[0]:
                         tmp_jobname = tmp[1].strip('Name=')
                         jobname_list.append(tmp_jobname)
-
-        #Step 3. using the list of job names, use what the user inputed to match and see if the specified job is
-        #is still active and in the list..
+        
+        #Step 3. using the list of job names, use the user input to match and see if the specified job is
+        # still active
 
         for x in jobname_list:
-            if x == job_name:
+            if str(x) == str(job_name):
                 if self.debug_mode:  print '[DBG] Job still active..'
                 return True
 
@@ -282,8 +283,8 @@ class Swait():
                 match_job_id = tmp[0]
                 match_user_id = tmp[3]
 
-                if match_user_id == whoami:
-                    if (match_job_id != "JOBID"):
+                if str(match_user_id) == str(whoami):
+                    if (str(match_job_id) != "JOBID"):
                         if self.debug_mode:  print '[DBG] Job still active..'
                         return True
         return False
