@@ -1,13 +1,11 @@
-# file: swait_unittest1.py
-# info: unit testing swait2.py offline with mock input
+# file: unittests_offline.py
+# info: unit testing swait
 
 import unittest
 import swait
 import subprocess
 import time
 import os
-
-debugOn = False
 
 class SwaitUnitTests(unittest.TestCase):
     # -- Helper members and methods --
@@ -21,7 +19,6 @@ class SwaitUnitTests(unittest.TestCase):
             sys.exit(-1)
 
     def setUp(self):
-        
         START_TIME = float(time.time())
         fo = open('timer.txt','wb+')
         fo.write('START_TIME='+str(START_TIME))
@@ -34,6 +31,7 @@ class SwaitUnitTests(unittest.TestCase):
 
     # -- Test Functions
     def test_searchfor_single_jobid(self):
+        print 'Test: search for single JOBID'
 
         # The job ID 12000000 is defined within the dummypoll.py script..
         self.run_terminal_cmnd('python swait.py -dbg 1 -j 12000000')
@@ -43,6 +41,7 @@ class SwaitUnitTests(unittest.TestCase):
         self.assertEqual(retval,0)
 
     def test_searchfor_list_of_jobids(self):
+        print 'Test: search for list of JOBIDs'
 
         self.run_terminal_cmnd('python swait.py -dbg 1 -j 12000001 12000002 12000003 12000004 12000005')
 
@@ -52,7 +51,8 @@ class SwaitUnitTests(unittest.TestCase):
         self.assertEqual(retval,0)
 
     def test_searchfor_range_of_jobids(self):
-        
+        print 'Test: search for range of JOBIDs'
+
         self.run_terminal_cmnd('python swait.py -dbg 1 -jr 12000000 12000008')
         
         data = self.p.communicate()[0]
@@ -61,6 +61,7 @@ class SwaitUnitTests(unittest.TestCase):
         self.assertEqual(retval,0) 
 
     def test_searchfor_user(self):
+        print 'Test: search for USERID'
 
         self.run_terminal_cmnd('python swait.py -dbg 1 -u rsam046')
 
@@ -68,6 +69,11 @@ class SwaitUnitTests(unittest.TestCase):
         retval = self.p.returncode
 
         self.assertEqual(retval,0)
+
+    '''
+    NOTE:
+        searching for a JOBNAME requires access to the scontrol function.
+        since it is not available off the cluster. This test is omitted.
 
     def test_searchfor_jobname(self):
 
@@ -77,7 +83,7 @@ class SwaitUnitTests(unittest.TestCase):
         retval = self.p.returncode
 
         self.assertEqual(retval,0)
-
+    '''
 
 if __name__ == '__main__':
     unittest.main()

@@ -22,17 +22,19 @@ Optional parameters,
 
 ###2. Quick Usage Notes 
 
-1. Waiting for a single Job ID to complete: `swait.py -j [JOBID]` 
-2. Waiting for list of Job ID's (separated by whitespace) to complete: `swait.py -j [JOBID1] [JOBID2] [JOBID3] [JOBIDn]` 
-3. Waiting for a range of Job ID's to complete: `swait.py -jr [JOBID_START] [JOBID_END]`
-4. Waiting for a specific users' jobs to complete: `swait.py -u [USERID]` 
-5. Waiting for specific job name to complete: `swait.py -n [JOBNAME]` , note: this only works for the current logged in user
-6. Turning Debug messages ON: `swait.py -dbg 1` , where a `1 = ON` & `0 = OFF`
-7. Setting the polling frequency: `swait.py -pf 10`
+1. Waiting for a single Job ID to complete: `swait -j [JOBID]` 
+2. Waiting for list of Job ID's (separated by whitespace) to complete: `swait -j [JOBID1] [JOBID2] [JOBID3] [JOBIDn]` 
+3. Waiting for a range of Job ID's to complete: `swait -jr [JOBID_START] [JOBID_END]`
+4. Waiting for a specific users' jobs to complete: `swait -u [USERID]` 
+5. Waiting for specific job name to complete: `swait -n [JOBNAME]` , note: this only works for the current logged in user
+6. Turning Debug messages ON: `swait -dbg 1` , where a `1 = ON` & `0 = OFF`
+7. Setting the polling frequency: `swait -pf 10`
 
 ####Swait return codes: 
 `0 = Successfull job completion.` 
+
 `1 = Polling error.` 
+
 `2 = Invalid input.` 
 
 ###3. Usage examples
@@ -49,7 +51,7 @@ Submitted batch job 12050168
 ```
 We then execute swait to wait for the job `12050168` to complete.
 ```bash
-$ python swait.py -j 12050168 -dbg 1 
+$ swait -j 12050168 -dbg 1 
 ```
 Note: the `-dbg 1` flag turns on debug messages. 
 
@@ -74,7 +76,7 @@ x=$(sbatch examplejob.sl)   # 1. Run sbatch with the input file "examplejob.sl".
 JOBID=($x)                  # 2. Grab the output from sbatch and extract and
 JOBID=${JOBID[3]}           #    store the job id.
 
-python swait.py -j $JOBID   # 3. Run swait with the job id.
+swait -j $JOBID             # 3. Run swait with the job id.
 
 # Checks for successful job completion..
 if [ "$?"==0 ]

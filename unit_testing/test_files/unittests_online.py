@@ -1,5 +1,5 @@
-# file: swait_unittests0.py
-# info: unit testing swait.py
+# file: unittests_online.py
+# info: unit testing swait
 
 import unittest
 import swait
@@ -41,8 +41,10 @@ class SwaitUnitTests(unittest.TestCase):
         self.p = None
         
     # -- Test functions --------------
-
+    
     def test_searchfor_single_jobid(self):
+        print 'Test: search for single JOBID'
+
         #Step 1:    Launch "sbatch hello.sl" and get the "Submitted batch job JOBID" text. Extract the JOBID.
         self.run_terminal_cmnd('sbatch hello.sl')
         self.get_jobid_from_sbatchtxt()
@@ -59,6 +61,8 @@ class SwaitUnitTests(unittest.TestCase):
         self.assertEqual(retval,0)
 
     def test_searchfor_list_of_jobids(self):
+        print 'Test: search for list of JOBIDs'
+
         self.run_terminal_cmnd('sbatch arrayjob.sl')
         self.get_jobid_from_sbatchtxt()
 
@@ -73,6 +77,8 @@ class SwaitUnitTests(unittest.TestCase):
         self.assertEqual(retval,0)
 
     def test_searchfor_range_of_jobids(self):
+        print 'Test: search for range of JOBIDs'
+
         #step1: run hello.sl,get the jobid and set the variable jobid1 
         self.run_terminal_cmnd('sbatch hello.sl')
         jobid1 = self.get_jobid_from_sbatchtxt()
@@ -93,6 +99,8 @@ class SwaitUnitTests(unittest.TestCase):
         self.assertEqual(retval,0) 
         
     def test_searchfor_user(self):
+        print 'Test: search for USERID'
+
         self.run_terminal_cmnd('sbatch hello.sl')
         self.run_terminal_cmnd('python swait.py -u rsam046')
 
@@ -102,8 +110,21 @@ class SwaitUnitTests(unittest.TestCase):
         self.assertEqual(retval,0)
 
     def test_searchfor_jobname(self):
+        print 'Test: search for JOBNAME'
+
         self.run_terminal_cmnd('sbatch hello.sl')
         self.run_terminal_cmnd('python swait.py -n hello')
+
+        data = self.p.communicate()[0]
+        retval = self.p.returncode
+
+        self.assertEqual(retval,0)
+
+    def test_searchfor_defaultuser(self):
+        print 'Test: search for DEFAULTUSER'
+
+        self.run_terminal_cmnd('sbatch hello.sl')
+        self.run_terminal_cmnd('python swait.py')
 
         data = self.p.communicate()[0]
         retval = self.p.returncode
