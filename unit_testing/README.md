@@ -2,7 +2,7 @@ Unit Testing Doc
 ================
 #### Files involved in testing
 * `unittests_offline_0.py`: Runs the unit tests offline. The necessary variables are set directly by importing swait.
-* `unittests_offline_1.py`: Runs the unit tests offline using dummy input via command line.
+* `unittests_offline_1.py`: Runs the unit tests offline using dummy input. Calls swait via cmnd line.
 * `unittests_online.py`: Runs the unit tests on the cluster using the files `hello.sl` and `arrayjob.sl` as inputs
 * `dummypoll.py`: Generates a dummy `squeue` output
 * `swait.py` : A slightly different version of swait, modified to call `dummypoll.py`

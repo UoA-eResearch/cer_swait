@@ -12,6 +12,6 @@ if [ "$?"==0 ]
   echo "Job: ${JOBID} completed successfully!"
 fi
 
-# Note: '$?' returns the exit code of the previously executed command.
+# Note: "$?" returns the exit code of the previously executed command.
 # In our case, the exitcode from swait.
 

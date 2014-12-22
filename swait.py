@@ -63,7 +63,7 @@ class Swait():
                         self.job_id = args.job[0]
                         if self.debug_mode:  print '[DBG] Searching for JOBID: ', args.job[0]
                         
-                if len(args.job) > 2:
+                if len(args.job) >= 2:
                         # for when a list of job ID's given
                         for x in args.job:
                                 self.job_id_list.append(x)
